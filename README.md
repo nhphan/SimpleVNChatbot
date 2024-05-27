@@ -2,7 +2,7 @@
 ## A. Introduction
 **Chatbot (Large Language Models):** Chatbots are one of the most popular applications in the field of Artificial Intelligence. This is increasingly evident with the advent of LLMs in recent times, which are capable of performing numerous tasks with high accuracy and are still being developed and improved. Advances in this technology not only enhance the quality of interactions between humans and machines but also open up new possibilities in automation and personalized services.
 
-It can simulate a conversation (or a chat) with a user in natural language through messaging applications, websites, mobile apps, or through telephone.
+It can simulate a conversation (or a chat) with an user in natural language through messaging applications, websites, mobile apps, or through telephone.
 
 In this repo, I will build a chatbot using LLMs trained on the Vietnamese dataset [VinaLLaMA](https://huggingface.co/vilm/vinallama-7b).
 ## B. Technical overview
@@ -125,7 +125,7 @@ with torch.inference_mode():
 print(tokenizer.decode(outputs [0], skip_special_tokens = True))
 ```
 
-Following this sequence, we will be able to build a simple chatbot that can answer basic user questions. Here are some examples of input questions and the chatbot's responses:
+Following this sequence, we will be able to build a simple chatbot that can answer basic user's questions. Here are some examples of input questions and the chatbot's responses:
 ![image](https://github.com/nhphan/SimpleVNChatbot/assets/96032860/6a00e505-b1dd-4a27-a2e8-c3df5a8b6e60)
 ![image](https://github.com/nhphan/SimpleVNChatbot/assets/96032860/ec554502-b843-4ef2-a3aa-587fc37ff743)
 
