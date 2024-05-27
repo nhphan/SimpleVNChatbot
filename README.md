@@ -12,23 +12,118 @@ In this repo, I will build a chatbot using LLMs trained on the Vietnamese datase
 Here are the detailed steps of implementation:
 ### Step 1: Install libraries
 
-![image](https://github.com/nhphan/SimpleVNChatbot/assets/96032860/04325a86-9f5d-462e-8195-cd8c576f87b2)
+```python
+! pip install -q -U bitsandbytes
+! pip install -q -U datasets
+! pip install -q -U git+https://github.com/huggingface/transformers.git
+! pip install -q -U git+https://github.com/huggingface/peft.git
+! pip install -q -U git+https://github.com/huggingface/accelerate.git
+! pip install -q -U loralib
+! pip install -q -U einops
+! pip install -q -U googletrans==3.1.0a0
+```
 
 ### Step 2: Import libraries/modules
 
-![image](https://github.com/nhphan/SimpleVNChatbot/assets/96032860/5f5a78a6-7ee9-484b-badf-709f6684f657)
+```python
+import json
+import os
+import bitsandbytes as bnb
+import torch
+import torch.nn as nn
+import transformers
+
+from googletrans import Translator
+from pprint import pprint
+from datasets import load_dataset
+from huggingface_hub import notebook_login
+from peft import (
+    LoraConfig,
+    PeftConfig,
+    PeftModel,
+    get_peft_model,
+    prepare_model_for_kbit_training
+)
+from transformers import (
+    AutoConfig,
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    BitsAndBytesConfig
+)
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+```
 
 ### Step 3: Load trained model
 
-![image](https://github.com/nhphan/SimpleVNChatbot/assets/96032860/068e66ed-4694-4529-a77a-3996e44978fe)
+```python
+MODEL_NAME = "vilm/vinallama-7b-chat"
+
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_use_double_quant=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype=torch.bfloat16
+)
+
+model = AutoModelForCausalLM.from_pretrained(
+    MODEL_NAME,
+    device_map = "auto",
+    trust_remote_code = True,
+    quantization_config = bnb_config
+)
+
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+tokenizer.pad_token = tokenizer.eos_token
+```
 
 ### Step 4: Configure LLMs
 
-![image](https://github.com/nhphan/SimpleVNChatbot/assets/96032860/37c410bf-acd2-479b-9e75-43f5766d13a8)
+```python
+model.gradient_checkpointing_enable()
+model = prepare_model_for_kbit_training(model)
+config = LoraConfig(
+    r=16,
+    lora_alpha=32,
+    target_modules=[
+        "q_proj",
+        "up_proj",
+        "o_proj",
+        "k_proj",
+        "down_proj",
+        "gate_proj",
+        "v_proj"
+    ],
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM"
+)
+
+model = get_peft_model (model, config)
+generation_config = model.generation_config
+generation_config.max_new_tokens = 200
+generation_config.temperature = 0.7
+generation_config.top_p = 0.7
+generation_config.num_return_sequences = 1
+generation_config.pad_token_id = tokenizer.eos_token_id
+generation_config.eos_token_id = tokenizer.eos_token_id
+```
 
 ### Step 5: Run trained model
 
-![image](https://github.com/nhphan/SimpleVNChatbot/assets/96032860/9abf21f8-28a6-4396-9926-e659bd4cf8d9)
+```python
+%%time
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+encoding = tokenizer(prompt, return_tensors ="pt").to(device)
+with torch.inference_mode():
+  outputs = model.generate(
+    input_ids = encoding.input_ids,
+    attention_mask = encoding.attention_mask,
+    generation_config = generation_config
+  )
+
+print(tokenizer.decode(outputs [0], skip_special_tokens = True))
+```
 
 Following this sequence, we will be able to build a simple chatbot that can answer basic user questions. Here are some examples of input questions and the chatbot's responses:
 ![image](https://github.com/nhphan/SimpleVNChatbot/assets/96032860/6a00e505-b1dd-4a27-a2e8-c3df5a8b6e60)
