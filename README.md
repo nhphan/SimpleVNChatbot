@@ -130,6 +130,6 @@ Following this sequence, we will be able to build a simple chatbot that can answ
 ![image](https://github.com/nhphan/SimpleVNChatbot/assets/96032860/ec554502-b843-4ef2-a3aa-587fc37ff743)
 
 ## C. How to install
-Please refer to this [Video](https://drive.google.com/file/d/1u_HSttETvKM80oophu4ZPak7odn15wyN/view?usp=sharing).
+Please refer to this [video](https://drive.google.com/file/d/1u_HSttETvKM80oophu4ZPak7odn15wyN/view?usp=sharing).
 ## D. Conclusion
 In conclusion, we have developed a simple chatbot that can answer basic user questions for Vietnamese. The strengths of this chatbot include its ability to understand and respond to common queries, its ease of use, and its potential to improve with more data. However, there are also some weaknesses. The chatbot may not always understand complex questions. One way to improve the model's accuracy is through fine-tuning with a specific dataset to address a particular topic, such as mathematics or history. However, due to time constraints, this repository will only utilize a general dataset.
